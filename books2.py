@@ -1,6 +1,5 @@
 from fastapi import FastAPI , Body
-from pydantic import BaseModel
-
+from pydantic import BaseModel, Field
 
 app = FastAPI()
 
@@ -23,7 +22,7 @@ class BookRequest(BaseModel):
     title : str
     author : str
     description : str
-    rating : str
+    rating : float = Field(..., ge=0 , le =5)
 
 
 BOOKS = [
@@ -37,10 +36,22 @@ BOOKS = [
 async def read_all_books():
     return BOOKS
 
+
+
+"""# This:
+Book(id=5, title="Python for Fun", author="Aashika", description="Learn Python easily", rating="5")
+
+# Is the same as:
+Book(**book_request.model_dump())
+model_dump() --> Converts Pydantic model to dict
+"""
 @app.post('/create-book')
 async def create_book(book_request : BookRequest):
     new_book = Book(**book_request.model_dump())
     BOOKS.append(new_book)
+    return {"message" : "Book Created successfully!"}
+
+
 
 
 
